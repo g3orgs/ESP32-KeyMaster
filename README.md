@@ -66,6 +66,8 @@ The web interface provides:
 - Help page with key code reference
 - About page with version information
 
+![Web Interface Screenshot](pics/Gui_screen.jpg)
+
 ## Project Structure
 
 ```
