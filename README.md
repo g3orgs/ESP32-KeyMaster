@@ -1,6 +1,6 @@
 # ESP32-KeyMaster
 
-A customizable keyboard shortcut device based on ESP32. This project allows you to create custom keyboard shortcuts using two buttons and configure them through a web interface.
+A customizable keyboard shortcut device based on the ESP32-S3 Mini. This project allows you to create custom keyboard shortcuts using two buttons and configure them through a web interface. 🎮✨
 
 ## Features
 
@@ -14,7 +14,7 @@ A customizable keyboard shortcut device based on ESP32. This project allows you 
 
 ## Hardware Requirements
 
-- ESP32 development board
+- ESP32-S3 Mini development board
 - 2 push buttons
 - 1 RGB LED (WS2812B/NeoPixel)
 - USB cable for power and data
@@ -30,7 +30,7 @@ A customizable keyboard shortcut device based on ESP32. This project allows you 
 
 1. Clone this repository
 2. Open the project in PlatformIO
-3. Connect your ESP32
+3. Connect your ESP32-S3 Mini
 4. Upload the code
 5. Connect to the "ESP32-KeyMaster" WiFi network
 6. Open the configuration page in your browser
@@ -70,30 +70,31 @@ The web interface provides:
 
 ```
 ESP32-KeyMaster/
-├── Epic01_Hardware/         # Hardware-related user stories
-│   ├── Button_Implementation.md
-│   ├── LED_Implementation.md
-│   └── USB_HID_Implementation.md
-├── Epic02_Configuration/    # Configuration interface
-│   ├── Web_Interface.md
-│   ├── WiFi_Setup.md
-│   └── Storage_Implementation.md
-├── Epic03_Keyboard/         # Keyboard functions
-│   ├── HID_Protocol.md
-│   ├── Key_Mapping.md
-│   └── Modifier_Support.md
-├── Epic04_Usability/        # UI/UX aspects
-│   ├── LED_Feedback.md
-│   ├── Button_Behavior.md
-│   └── Web_UI_Design.md
-├── Epic05_Stability/        # Stability and maintainability
-│   ├── Error_Handling.md
-│   ├── Power_Management.md
-│   └── Code_Structure.md
-├── Epic06_Extensions/       # Future extensions
-│   ├── Multi_Button_Support.md
-│   ├── Profiles_Support.md
-│   └── OTA_Updates.md
+├── Epics/                    # Main folder for all Epics
+│   ├── Epic01_Hardware/     # Hardware-related user stories
+│   │   ├── Button_Implementation.md
+│   │   ├── LED_Implementation.md
+│   │   └── USB_HID_Implementation.md
+│   ├── Epic02_Configuration/# Configuration interface
+│   │   ├── Web_Interface.md
+│   │   ├── WiFi_Setup.md
+│   │   └── Storage_Implementation.md
+│   ├── Epic03_Keyboard/     # Keyboard functions
+│   │   ├── HID_Protocol.md
+│   │   ├── Key_Mapping.md
+│   │   └── Modifier_Support.md
+│   ├── Epic04_Usability/    # UI/UX aspects
+│   │   ├── LED_Feedback.md
+│   │   ├── Button_Behavior.md
+│   │   └── Web_UI_Design.md
+│   ├── Epic05_Stability/    # Stability and maintainability
+│   │   ├── Error_Handling.md
+│   │   ├── Power_Management.md
+│   │   └── Code_Structure.md
+│   └── Epic06_Extensions/   # Future extensions
+│       ├── Multi_Button_Support.md
+│       ├── Profiles_Support.md
+│       └── OTA_Updates.md
 ├── src/                     # Source code
 │   └── main.cpp            # Main application code
 ├── platformio.ini          # PlatformIO configuration
@@ -105,8 +106,8 @@ ESP32-KeyMaster/
 
 This project is built with:
 - PlatformIO
-- Arduino framework
-- ESP32 Arduino Core
+- Arduino Framework
+- ESP32-S3 Arduino Core
 - Adafruit NeoPixel library
 - ESP32 WebServer library
 
@@ -120,6 +121,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Credits
 
-- ESP32 Arduino Core Team
+- ESP32-S3 Arduino Core Team
 - Adafruit for the NeoPixel library
-- All contributors and users of this project 
+- All contributors and users of this project 🚀 
