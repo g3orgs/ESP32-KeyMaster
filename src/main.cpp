@@ -11,6 +11,9 @@
 #define BUTTON_A_PIN 1 // Button für Taste/Kombi A
 #define BUTTON_B_PIN 4 // Button für Taste/Kombi B (und Konfig-Aktivierung)
 #define FW_VERSION "1.2.0"
+#ifndef DEBUG_BUTTON_MODE
+#define DEBUG_BUTTON_MODE 0 // 1 = Button-States per LED anzeigen, HID/Config deaktiviert
+#endif
 
 // --- Globale Konfiguration ---
 struct ButtonConfig {
@@ -116,6 +119,13 @@ String hex2(uint8_t v) {
   String s = String(v, HEX);
   if (s.length() < 2) s = "0" + s;
   return s;
+}
+
+// Clamp integer to 0..255
+uint8_t clampByte(int v) {
+  if (v < 0) return 0;
+  if (v > 255) return 255;
+  return static_cast<uint8_t>(v);
 }
 
 // --- Funktionen zum Laden/Speichern der Konfiguration ---
@@ -293,18 +303,18 @@ void handleSave() {
       server.hasArg("keyB") && server.hasArg("rB") && server.hasArg("gB") && server.hasArg("bB")) {
 
     // Button A Daten extrahieren
-    buttonA_config.key = server.arg("keyA").toInt();
-    buttonA_config.modifier = modA;
-    buttonA_config.r = server.arg("rA").toInt();
-    buttonA_config.g = server.arg("gA").toInt();
-    buttonA_config.b = server.arg("bA").toInt();
+    buttonA_config.key = clampByte(server.arg("keyA").toInt());
+    buttonA_config.modifier = modA & 0x0F;
+    buttonA_config.r = clampByte(server.arg("rA").toInt());
+    buttonA_config.g = clampByte(server.arg("gA").toInt());
+    buttonA_config.b = clampByte(server.arg("bA").toInt());
 
     // Button B Daten extrahieren
-    buttonB_config.key = server.arg("keyB").toInt();
-    buttonB_config.modifier = modB;
-    buttonB_config.r = server.arg("rB").toInt();
-    buttonB_config.g = server.arg("gB").toInt();
-    buttonB_config.b = server.arg("bB").toInt();
+    buttonB_config.key = clampByte(server.arg("keyB").toInt());
+    buttonB_config.modifier = modB & 0x0F;
+    buttonB_config.r = clampByte(server.arg("rB").toInt());
+    buttonB_config.g = clampByte(server.arg("gB").toInt());
+    buttonB_config.b = clampByte(server.arg("bB").toInt());
 
     saveConfiguration(); // Speichere die neue Konfiguration
 
@@ -481,6 +491,21 @@ void loop() {
   // Lese die aktuellen Zustände der Buttons (entprellt)
   updateButton(btnA, now);
   updateButton(btnB, now);
+
+#if DEBUG_BUTTON_MODE
+  // Debug: LED zeigt Button-Zustände, HID/AP sind deaktiviert
+  if (btnA.stableState == LOW && btnB.stableState == LOW) {
+    pixels.setPixelColor(0, pixels.Color(255, 255, 0)); // Beide gedrückt = Gelb
+  } else if (btnA.stableState == LOW) {
+    pixels.setPixelColor(0, pixels.Color(0, 255, 0)); // A gedrückt = Grün
+  } else if (btnB.stableState == LOW) {
+    pixels.setPixelColor(0, pixels.Color(255, 0, 0)); // B gedrückt = Rot
+  } else {
+    pixels.clear(); // Keiner gedrückt
+  }
+  pixels.show();
+  return;
+#endif
 
   // --- Konfigurationsmodus Handling ---
   if (configModeActive) {
