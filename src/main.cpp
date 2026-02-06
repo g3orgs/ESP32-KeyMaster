@@ -10,6 +10,7 @@
 #define NUMPIXELS 1
 #define BUTTON_A_PIN 1 // Button für Taste/Kombi A
 #define BUTTON_B_PIN 4 // Button für Taste/Kombi B (und Konfig-Aktivierung)
+#define FW_VERSION "1.2.0"
 
 // --- Globale Konfiguration ---
 struct ButtonConfig {
@@ -388,7 +389,9 @@ void handleAbout() {
   html += "<style>body { font-family: sans-serif; margin: 0; padding: 0; background: #f7f7f7; } .container { max-width: 420px; margin: 20px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 20px; } h1 { text-align: center; color: #0078d7; margin-bottom: 10px; } .subtitle { text-align: center; color: #666; margin-bottom: 20px; } .version { text-align: center; font-size: 1.2em; margin: 20px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; } .credits { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; } .credits h2 { font-size: 1.2em; color: #666; } .credits p { color: #666; line-height: 1.6; } .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 30px; } a { display: inline-block; padding: 12px 24px; background: #0078d7; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; transition: all 0.2s; } a:hover { background: #005fa3; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); } @media (max-width: 500px) { .container { padding: 15px; margin: 10px; } }</style>";
   html += "</head><body><div class='container'>";
   html += "<h1>About Keymaster</h1>";
-  html += "<div class='version'>Version 1.2</div>";
+  html += "<div class='version'>Version ";
+  html += FW_VERSION;
+  html += "</div>";
   html += "<div class='credits'>";
   html += "<h2>Credits</h2>";
   html += "<p>Keymaster is an open-source project that allows you to create custom keyboard shortcuts using ESP32.</p>";
