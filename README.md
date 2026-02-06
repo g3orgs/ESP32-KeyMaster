@@ -14,7 +14,8 @@ A customizable keyboard shortcut device based on the ESP32-S3 Mini. This project
 
 ## Hardware Requirements
 
-- ESP32-S3 Super Mini development board (or compatible ESP32-S3 Mini)
+- Board: ESP32-S3 Super Mini
+- Alternative: compatible ESP32-S3 Mini (adjust pinout)
 - 2 push buttons
 - 1 RGB LED (WS2812B/NeoPixel, onboard on Super Mini)
 - USB cable for power and data
@@ -33,6 +34,11 @@ Quelle (Onboard LED):
 ```
 https://www.espboards.dev/esp32/esp32-s3-super-mini/#onboardLed
 ```
+
+## Changes (Super Mini)
+
+- Default PlatformIO environment is `esp32_s3_super_mini`.
+- Pinout updated for Super Mini (A=GPIO1, B=GPIO4, LED=GPIO48).
 
 ## Installation
 

@@ -30,15 +30,47 @@ const ButtonConfig default_B_config = {0x05, 0, 0, 0, 255};     // HID Code 'b'/
 Preferences preferences; // Objekt für NVS
 
 // --- Zustandsvariablen ---
-int lastButtonAState = HIGH;
-int lastButtonBState = HIGH;
 bool configModeActive = false; // Ist der Konfigurationsmodus aktiv?
 unsigned long buttonB_pressStartTime = 0; // Zeitpunkt, wann B gedrückt wurde
 const unsigned long longPressDuration = 5000; // 5 Sekunden für langen Druck
+const unsigned long debounceDuration = 30; // Entprellzeit in ms
+unsigned long ledPulseUntil = 0;
+uint32_t ledPulseColor = 0;
 // ------------------------
 
 Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 USBHIDKeyboard Keyboard; // Keyboard-Objekt aus der Core-Bibliothek
+
+// --- Debounce-Helper ---
+struct DebouncedButton {
+  uint8_t pin;
+  int stableState;
+  int lastReading;
+  unsigned long lastChange;
+  bool fell;
+  bool rose;
+};
+
+DebouncedButton btnA = {BUTTON_A_PIN, HIGH, HIGH, 0, false, false};
+DebouncedButton btnB = {BUTTON_B_PIN, HIGH, HIGH, 0, false, false};
+
+void updateButton(DebouncedButton &btn, unsigned long now) {
+  btn.fell = false;
+  btn.rose = false;
+  int reading = digitalRead(btn.pin);
+  if (reading != btn.lastReading) {
+    btn.lastChange = now;
+    btn.lastReading = reading;
+  }
+  if ((now - btn.lastChange) >= debounceDuration && reading != btn.stableState) {
+    btn.stableState = reading;
+    if (btn.stableState == LOW) {
+      btn.fell = true;
+    } else {
+      btn.rose = true;
+    }
+  }
+}
 
 // USB Event Callback (benötigt, aber Inhalt für uns nicht relevant)
 void usbEventCallback(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data){
@@ -445,9 +477,10 @@ void setup() {
 }
 
 void loop() {
-  // Lese die aktuellen Zustände der Buttons
-  int currentButtonAState = digitalRead(BUTTON_A_PIN);
-  int currentButtonBState = digitalRead(BUTTON_B_PIN);
+  unsigned long now = millis();
+  // Lese die aktuellen Zustände der Buttons (entprellt)
+  updateButton(btnA, now);
+  updateButton(btnB, now);
 
   // --- Konfigurationsmodus Handling ---
   if (configModeActive) {
@@ -459,69 +492,54 @@ void loop() {
     pixels.show();
 
     // Im Konfigurationsmodus werden normale Button-Aktionen übersprungen
-    delay(10); // Kleine Pause
     return; // Schleife hier beenden für den Konfig-Modus
   }
 
   // --- Normaler Betriebsmodus ---
 
   // --- Logik für Button A (nur kurzer Druck) ---
-  if (currentButtonAState == LOW && lastButtonAState == HIGH) {
+  if (btnA.fell) {
     // Flanke erkannt (gerade gedrückt)
     sendHIDKey(buttonA_config.modifier, buttonA_config.key);
     // Visuelles Feedback (konfigurierte Farbe A wird verwendet!)
-    pixels.setPixelColor(0, pixels.Color(buttonA_config.r, buttonA_config.g, buttonA_config.b));
-    pixels.show();
-    delay(100); // Kurzes Leuchten
-    pixels.clear();
-    pixels.show();
-    delay(50); // Kurze Entprellung/Pause nach Aktion
+    ledPulseColor = pixels.Color(buttonA_config.r, buttonA_config.g, buttonA_config.b);
+    ledPulseUntil = now + 100;
   }
 
   // --- Logik für Button B (kurzer Druck vs. langer Druck) ---
   // 1. Langen Druck erkennen
-  if (currentButtonBState == LOW) {
-    // Button B ist gedrückt
-    if (lastButtonBState == HIGH) {
-      // Flanke erkannt (gerade gedrückt) -> Starte Timer für langen Druck
-      buttonB_pressStartTime = millis();
+  if (btnB.fell) {
+    // Flanke erkannt (gerade gedrückt) -> Starte Timer für langen Druck
+    buttonB_pressStartTime = now;
+  }
+  if (btnB.stableState == LOW && buttonB_pressStartTime != 0 &&
+      (now - buttonB_pressStartTime > longPressDuration)) {
+    // Langer Druck erkannt! -> Konfigurationsmodus starten
+    enterConfigMode();
+    buttonB_pressStartTime = 0;
+    return;
+  }
+  if (btnB.rose) {
+    // Flanke erkannt (gerade losgelassen)
+    if (buttonB_pressStartTime != 0) {
+      // Es war ein kurzer Druck (langer Druck hätte Timer auf 0 gesetzt)
+      sendHIDKey(buttonB_config.modifier, buttonB_config.key);
+      // Visuelles Feedback (konfigurierte Farbe B wird verwendet!)
+      ledPulseColor = pixels.Color(buttonB_config.r, buttonB_config.g, buttonB_config.b);
+      ledPulseUntil = now + 100;
     }
-    // Button B wird gehalten -> Prüfe auf langen Druck (nur wenn Timer läuft)
-    else if (buttonB_pressStartTime != 0 && (millis() - buttonB_pressStartTime > longPressDuration)) {
-      // Langer Druck erkannt! -> Konfigurationsmodus starten
-      enterConfigMode();
-      // Wichtig: Timer zurücksetzen, damit es nicht sofort wieder ausgelöst wird
-      buttonB_pressStartTime = 0;
-      // Zustand speichern, um nicht fälschlicherweise kurzen Druck auszulösen
-      lastButtonBState = currentButtonBState; // Zustand als LOW merken
-      return; // Verlasse Loop, da wir im Config-Modus sind
-    }
-  } else {
-    // Button B ist NICHT gedrückt (HIGH)
-    if (lastButtonBState == LOW) {
-      // Flanke erkannt (gerade losgelassen)
-      // Prüfen, ob der Timer lief UND der Konfig-Modus NICHT aktiviert wurde
-      // (also war es ein kurzer Druck)
-      if (buttonB_pressStartTime != 0) {
-        // Es war ein kurzer Druck (langer Druck hätte Timer auf 0 gesetzt)
-        sendHIDKey(buttonB_config.modifier, buttonB_config.key);
-        // Visuelles Feedback (konfigurierte Farbe B wird verwendet!)
-        pixels.setPixelColor(0, pixels.Color(buttonB_config.r, buttonB_config.g, buttonB_config.b));
-        pixels.show();
-        delay(100); // Kurzes Leuchten
-        pixels.clear();
-        pixels.show();
-        delay(50); // Kurze Pause nach Aktion
-      }
-      // Timer auf jeden Fall zurücksetzen, wenn losgelassen
-      buttonB_pressStartTime = 0;
-    }
+    buttonB_pressStartTime = 0;
   }
 
-  // Speichere die aktuellen Zustände für den nächsten Durchlauf
-  lastButtonAState = currentButtonAState;
-  lastButtonBState = currentButtonBState;
-
-  // Kleine Verzögerung im Loop
-  delay(10);
-} 
+  // LED-Puls (nicht-blockierend)
+  if (ledPulseUntil != 0) {
+    if (now <= ledPulseUntil) {
+      pixels.setPixelColor(0, ledPulseColor);
+      pixels.show();
+    } else {
+      pixels.clear();
+      pixels.show();
+      ledPulseUntil = 0;
+    }
+  }
+}
