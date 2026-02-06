@@ -40,6 +40,8 @@ const unsigned long longPressDuration = 5000; // 5 Sekunden für langen Druck
 const unsigned long debounceDuration = 30; // Entprellzeit in ms
 unsigned long ledPulseUntil = 0;
 uint32_t ledPulseColor = 0;
+bool exitRequested = false;
+unsigned long exitRequestAt = 0;
 // ------------------------
 
 Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
@@ -186,6 +188,8 @@ void enterConfigMode() {
 
   configModeActive = true;
   buttonB_pressStartTime = 0; // Reset timer
+  exitRequested = false;
+  exitRequestAt = 0;
 
   // USB Keyboard deaktivieren? (Kann Konflikte vermeiden)
   // Keyboard.end(); 
@@ -214,11 +218,16 @@ void exitConfigMode() {
   pixels.show();
   configModeActive = false;
 
-  // USB Keyboard wieder aktivieren? (Wenn oben beendet)
-  // Keyboard.begin();
-
-  delay(100); // Kurze Pause geben
-  ESP.restart(); // Sicherstellen, dass alles neu initialisiert wird
+  // Zustände zurücksetzen
+  buttonB_pressStartTime = 0;
+  btnA.stableState = digitalRead(BUTTON_A_PIN);
+  btnB.stableState = digitalRead(BUTTON_B_PIN);
+  btnA.lastReading = btnA.stableState;
+  btnB.lastReading = btnB.stableState;
+  btnA.lastChange = millis();
+  btnB.lastChange = millis();
+  exitRequested = false;
+  exitRequestAt = 0;
 }
 // ----------------------------------------
 
@@ -322,8 +331,8 @@ void handleSave() {
 // Funktion zum Behandeln des Verlassens des Konfig-Modus ("/exit")
 void handleExit() {
   server.send(200, "text/html", FPSTR(EXIT_PAGE));
-  delay(100);
-  exitConfigMode();
+  exitRequested = true;
+  exitRequestAt = millis();
 }
 
 // --- NEUE Funktion zum Behandeln der Debug-Seite ("/debug") ---
@@ -474,6 +483,9 @@ void loop() {
     pixels.setPixelColor(0, pixels.Color(255, 150, 0));
     pixels.show();
 
+    if (exitRequested && (millis() - exitRequestAt > 200)) {
+      exitConfigMode();
+    }
     // Im Konfigurationsmodus werden normale Button-Aktionen übersprungen
     return; // Schleife hier beenden für den Konfig-Modus
   }
