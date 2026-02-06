@@ -14,26 +14,40 @@ A customizable keyboard shortcut device based on the ESP32-S3 Mini. This project
 
 ## Hardware Requirements
 
-- ESP32-S3 Mini development board
+- ESP32-S3 Super Mini development board (or compatible ESP32-S3 Mini)
 - 2 push buttons
-- 1 RGB LED (WS2812B/NeoPixel)
+- 1 RGB LED (WS2812B/NeoPixel, onboard on Super Mini)
 - USB cable for power and data
 - Optional: Case/Enclosure
 
 ## Pin Configuration
 
+### ESP32-S3 Super Mini
+
 - Button A: GPIO 1
-- Button B: GPIO 3
-- LED: GPIO 47
+- Button B: GPIO 4
+- LED (WS2812 onboard): GPIO 48
+- Hinweis: GPIO 48 teilt sich die Leitung mit der roten Power-LED. Bei WS2812-Aktivität kann die rote LED mitblinken.
+
+Quelle (Onboard LED):
+```
+https://www.espboards.dev/esp32/esp32-s3-super-mini/#onboardLed
+```
 
 ## Installation
 
 1. Clone this repository
 2. Open the project in PlatformIO
 3. Connect your ESP32-S3 Mini
-4. Upload the code
+4. Select the correct PlatformIO environment
+5. Upload the code
 5. Connect to the "ESP32-KeyMaster" WiFi network
 6. Open the configuration page in your browser
+
+### PlatformIO Environments
+
+- `esp32_s3_super_mini` (default): ESP32-S3 Super Mini
+- `lolin_s3_mini`: Wemos LOLIN S3 Mini
 
 ## Usage
 

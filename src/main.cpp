@@ -6,10 +6,10 @@
 #include <WebServer.h>       // Für Konfigurationsseite
 #include <Preferences.h>     // Für persistente Speicherung
 
-#define LED_PIN 47
+#define LED_PIN 48
 #define NUMPIXELS 1
 #define BUTTON_A_PIN 1 // Button für Taste/Kombi A
-#define BUTTON_B_PIN 3 // Button für Taste/Kombi B (und Konfig-Aktivierung)
+#define BUTTON_B_PIN 4 // Button für Taste/Kombi B (und Konfig-Aktivierung)
 
 // --- Globale Konfiguration ---
 struct ButtonConfig {
@@ -286,7 +286,6 @@ void handleSave() {
     html += "<div class='success-icon'>✓</div>";
     html += "<div class='btn-row'>";
     html += "<a href='/'>Back to Configuration</a>";
-    html += "<a href='/exit' class='secondary'>Exit & Restart Device</a>";
     html += "</div></div></body></html>";
 
     server.send(200, "text/html", html);
