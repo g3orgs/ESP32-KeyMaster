@@ -11,14 +11,15 @@ Implementation of RGB LED feedback using WS2812B/NeoPixel for the ESP32-KeyMaste
 
 ## Technical Details
 - LED Type: WS2812B/NeoPixel
-- GPIO: 47
+- GPIO: 48 (onboard WS2812 on ESP32-S3 Super Mini)
 - Number of LEDs: 1
 - Brightness: 20 (0-255)
+ - Hinweis: GPIO 48 teilt sich die Leitung mit der roten Power-LED
 
 ## Implementation
 ```cpp
 // LED configuration
-#define LED_PIN 47
+#define LED_PIN 48
 #define NUMPIXELS 1
 #define BRIGHTNESS 20
 

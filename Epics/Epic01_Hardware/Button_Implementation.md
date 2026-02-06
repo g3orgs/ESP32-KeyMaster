@@ -11,21 +11,19 @@ Implementation of physical button handling for the ESP32-KeyMaster device.
 
 ## Technical Details
 - Button A: GPIO 1
-- Button B: GPIO 3
+- Button B: GPIO 4
 - Internal pull-up resistors enabled
-- Debounce time: 50ms
+- Debounce time: 30ms (non-blocking)
 - Long press duration: 5000ms
 
 ## Implementation
 ```cpp
 // Button pin definitions
 #define BUTTON_A_PIN 1
-#define BUTTON_B_PIN 3
+#define BUTTON_B_PIN 4
 
-// Button state variables
-int lastButtonAState = HIGH;
-int lastButtonBState = HIGH;
-unsigned long buttonB_pressStartTime = 0;
+// Debounce configuration
+const unsigned long debounceDuration = 30;
 const unsigned long longPressDuration = 5000;
 ```
 

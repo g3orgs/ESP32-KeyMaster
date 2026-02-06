@@ -1,14 +1,16 @@
-# Pinout-Dokumentation (Lolin S3 Mini)
+# Pinout-Dokumentation (ESP32-S3 Super Mini)
 
-Dieses Dokument beschreibt die verwendete Pin-Belegung im Projekt `TeamsButton6_ESP_SuperMiniS3` basierend auf dem Code in `src/main.cpp`.
+Dieses Dokument beschreibt die verwendete Pin-Belegung im Projekt basierend auf dem Code in `src/main.cpp` für das ESP32-S3 Super Mini.
 
 ## Verwendete Pins
 
 | GPIO Pin | Funktion         | Beschreibung                                      |
 |----------|------------------|---------------------------------------------------|
-| `GPIO 1` | `BUTTON_A_PIN`   | Eingang für Button A (Taste 'A', INPUT_PULLUP)    |
-| `GPIO 3` | `BUTTON_B_PIN`   | Eingang für Button B (Taste 'B', INPUT_PULLUP)    |
-| `GPIO 47`| `LED_PIN`        | Ausgang für die Onboard NeoPixel RGB LED          |
+| `GPIO 1` | `BUTTON_A_PIN`   | Eingang für Button A (INPUT_PULLUP)               |
+| `GPIO 4` | `BUTTON_B_PIN`   | Eingang für Button B (INPUT_PULLUP)               |
+| `GPIO 48`| `LED_PIN`        | Ausgang für die Onboard WS2812 RGB LED            |
+
+Hinweis: GPIO 48 teilt sich die Leitung mit der roten Power-LED. Bei WS2812-Aktivität kann die rote LED mitblinken.
 
 ## USB Pins
 
